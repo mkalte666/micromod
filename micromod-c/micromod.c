@@ -22,7 +22,7 @@ struct instrument {
 struct channel {
 	struct note note;
 	unsigned short period, porta_period;
-	unsigned long sample_offset, sample_idx, step;
+	unsigned long sample_offset, sample_idx, step, freq;
 	unsigned char volume, panning, fine_tune, ampl;
 	unsigned char id, instrument, assigned, porta_speed, pl_row, fx_count;
 	unsigned char vibrato_type, vibrato_phase, vibrato_speed, vibrato_depth;
@@ -110,6 +110,7 @@ static void update_frequency( struct channel *chan ) {
 	if( volume > 64 ) volume = 64;
 	if( volume < 0 ) volume = 0;
 	chan->ampl = volume * gain;
+    chan->freq = freq;
 }
 
 static void tone_portamento( struct channel *chan ) {
@@ -288,7 +289,7 @@ static void channel_row( struct channel *chan ) {
 			chan->volume = volume < 0 ? 0 : volume;
 			break;
 		case 0x1C: /* Note Cut.*/
-			if( param <= 0 ) chan->volume = 0;
+			if( param <= 0 ) chan->volume = 0; 
 			break;
 		case 0x1E: /* Pattern Delay.*/
 			tick = speed + speed * param;
@@ -615,4 +616,12 @@ void micromod_get_audio( short *output_buffer, long count ) {
 		offset += remain;
 		count -= remain;
 	}
+}
+
+unsigned long micromod_get_channel_freq( long channel) {
+    if (channel < 0 || channel > MAX_CHANNELS || channel > num_channels) {
+        return 0;
+    }
+
+    return channels[channel].volume > 0 ? channels[channel].freq : 0;
 }

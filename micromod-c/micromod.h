@@ -35,3 +35,8 @@ void micromod_set_position( long pos );
 	Output buffer must be zeroed.
 */
 void micromod_get_audio( short *output_buffer, long count );
+
+/*
+    Returns the current frequency of a channel
+*/
+unsigned long micromod_get_channel_freq( long channel );
